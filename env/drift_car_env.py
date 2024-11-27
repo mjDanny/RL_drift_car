@@ -65,8 +65,12 @@ class DriftCarEnv(gym.Env):
         for point in self.points:
             pygame.draw.circle(self.screen, self.RED, point, 10)
 
+        # Преобразуем массив NumPy в обычные числа
+        car_x = int(self.car_position[0])
+        car_y = int(self.car_position[1])
+
         # Рисуем машинку
-        car_rect = pygame.Rect(self.car_position[0] - 10, self.car_position[1] - 5, 20, 10)
+        car_rect = pygame.Rect(car_x - 10, car_y - 5, 20, 10)
         pygame.draw.rect(self.screen, self.GREEN, car_rect)
 
         # Обновляем экран

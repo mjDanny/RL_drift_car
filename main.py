@@ -19,10 +19,6 @@ def main():
         state = np.reshape(state, [1, state_size])
         for time in range(500):
             action = agent.act(state)
-            # Преобразуем действие в массив
-            action = np.array(
-                [action, 0.0]
-            )  # Предположим, что второе действие (скорость) всегда 0.0
             next_state, reward, done, _ = env.step(action)
             reward = reward if not done else -10
             next_state = np.reshape(next_state, [1, state_size])

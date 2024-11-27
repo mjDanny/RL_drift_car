@@ -1,0 +1,5 @@
+gym
+numpy
+pygame
+tensorflow
+python-dotenv

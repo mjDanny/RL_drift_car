@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drift Car Training</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>Drift Car Training</h1>
+    <button id="start-training">Start Training</button>
+    <div id="status">
+        <p>Training Status: <span id="running">{{ status.running }}</span></p>
+        <p>Episode: <span id="episode">{{ status.episode }}</span></p>
+        <p>Average Reward: <span id="reward">{{ status.reward }}</span></p>
+    </div>
+    <script>
+        document.getElementById("start-training").addEventListener("click", function() {
+            fetch("/start_training", { method: "POST" })
+                .then(response => response.json())
+                .then(data => console.log(data));
+        });
+
+        function updateStatus() {
+            fetch("/status")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("running").innerText = data.running;
+                    document.getElementById("episode").innerText = data.episode;
+                    document.getElementById("reward").innerText = data.reward;
+                });
+        }
+
+        setInterval(updateStatus, 1000);
+    </script>
+</body>
+</html>

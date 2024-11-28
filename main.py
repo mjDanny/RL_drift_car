@@ -17,14 +17,14 @@ def main():
 
     # Обучение
     done = False
-    batch_size = 512
+    batch_size = 64
     total_rewards = []
 
-    for e in range(5000):  # Увеличим количество эпизодов до 5000
+    for e in range(100):  # Уменьшим количество эпизодов до 100
         state = env.reset()
         state = np.reshape(state, [1, state_size])
         episode_reward = 0
-        for time in range(2000):  # Увеличим количество шагов в каждом эпизоде до 2000
+        for time in range(100):  # Уменьшим количество шагов в каждом эпизоде до 100
             action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
             reward = reward if not done else -10
@@ -33,14 +33,14 @@ def main():
             state = next_state
             episode_reward += reward
             if done:
-                print(f"Эпизод: {e}/{5000}, счет: {time}, награда: {episode_reward}")
+                print(f"Эпизод: {e}/{100}, счет: {time}, награда: {episode_reward}")
                 break
             if len(agent.memory) > batch_size:
                 agent.replay(batch_size)
             env.render()
         total_rewards.append(episode_reward)
-        if e % 100 == 0:
-            print(f"Средняя награда за последние 100 эпизодов: {np.mean(total_rewards[-100:])}")
+        if e % 10 == 0:
+            print(f"Средняя награда за последние 10 эпизодов: {np.mean(total_rewards[-10:])}")
 
     env.close()
     pygame.quit()

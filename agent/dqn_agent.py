@@ -36,7 +36,7 @@ class DQNAgent:
         act_values = self.model.predict(state)
         return act_values[0]  # Возвращаем массив действий
 
-    def replay(self, batch_size=512, epochs=10):  # Увеличим размер батча до 512 и количество эпох до 10
+    def replay(self, batch_size=32, epochs=1):  # Уменьшим размер батча до 32 и количество эпох до 1
         if len(self.memory) < batch_size:
             return
 

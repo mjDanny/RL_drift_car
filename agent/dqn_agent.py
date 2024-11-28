@@ -10,7 +10,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=10000)  # Увеличим размер буфера памяти
         self.gamma = 0.95  # Дисконтирующий фактор
         self.epsilon = 1.0  # Начальная вероятность исследования
         self.epsilon_min = 0.01
@@ -20,8 +20,9 @@ class DQNAgent:
 
     def _build_model(self):
         model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
+        model.add(Dense(128, input_dim=self.state_size, activation='relu'))  # Увеличим количество нейронов
+        model.add(Dense(128, activation='relu'))  # Увеличим количество нейронов
+        model.add(Dense(128, activation='relu'))  # Добавим еще один слой
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(learning_rate=self.learning_rate))
         return model
@@ -35,7 +36,7 @@ class DQNAgent:
         act_values = self.model.predict(state)
         return act_values[0]  # Возвращаем массив действий
 
-    def replay(self, batch_size):
+    def replay(self, batch_size=512, epochs=10):  # Увеличим размер батча до 512 и количество эпох до 10
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
             target = reward
@@ -43,6 +44,6 @@ class DQNAgent:
                 target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
             target_f = self.model.predict(state)
             target_f[0][np.argmax(action)] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
+            self.model.fit(state, target_f, epochs=epochs, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay

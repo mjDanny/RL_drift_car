@@ -37,13 +37,31 @@ class DQNAgent:
         return act_values[0]  # Возвращаем массив действий
 
     def replay(self, batch_size=512, epochs=10):  # Увеличим размер батча до 512 и количество эпох до 10
+        if len(self.memory) < batch_size:
+            return
+
         minibatch = random.sample(self.memory, batch_size)
-        for state, action, reward, next_state, done in minibatch:
-            target = reward
-            if not done:
-                target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
-            target_f = self.model.predict(state)
-            target_f[0][np.argmax(action)] = target
-            self.model.fit(state, target_f, epochs=epochs, verbose=0)
+        states, actions, rewards, next_states, dones = zip(*minibatch)
+
+        states = np.array(states).reshape(batch_size, self.state_size)
+        next_states = np.array(next_states).reshape(batch_size, self.state_size)
+        actions = np.array(actions).reshape(batch_size, self.action_size)
+        rewards = np.array(rewards).reshape(batch_size, 1)
+        dones = np.array(dones).reshape(batch_size, 1)
+
+        dataset = tf.data.Dataset.from_tensor_slices((states, actions, rewards, next_states, dones))
+        dataset = dataset.shuffle(buffer_size=1000).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+
+        for epoch in range(epochs):
+            for state, action, reward, next_state, done in dataset:
+                target = reward.numpy()  # Преобразуем тензор в массив NumPy
+                done = done.numpy()  # Преобразуем тензор в массив NumPy
+                if not done.any():  # Используем any() для проверки значений в массиве done
+                    target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
+                target_f = self.model.predict(state)
+                for i in range(batch_size):
+                    target_f[i][np.argmax(action[i])] = target[i]
+                self.model.fit(state, target_f, epochs=1, verbose=0)
+
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
